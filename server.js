@@ -359,45 +359,16 @@ app.get('/api/thumbnail/:type/:name', (req, res) => {
     res.redirect(`/api/thumbnail/${req.params.name}`);
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+// For Vercel serverless, export the app instead of listening
+export default app;
 
-    if (photosList.length === 0) {
-        populateLists().catch(console.error);
-    }
+// For local development, listen if not in Vercel
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
 
-    // Background thumbnail generation (DISABLED DUE TO MISSING LIBS)
-    /*
-    (async () => {
-        const photoDir = path.join(__dirname, 'public/photos');
-        const thumbDir = path.join(__dirname, 'public/thumbnails');
-        if (!fs.existsSync(thumbDir)) fs.mkdirSync(thumbDir, { recursive: true });
-
-        try {
-            const files = fs.readdirSync(photoDir).filter(f => /\.(jpg|jpeg|png|webp|avif)$/i.test(f));
-            console.log(`[BACKWARD_THUMB] Starting background generation for ${files.length} images...`);
-
-            // Process in small batches to not lock the event loop
-            const sharp = (await import('sharp')).default;
-
-            for (const file of files) {
-                const thumbPath = path.join(thumbDir, file);
-                if (!fs.existsSync(thumbPath)) {
-                    try {
-                        await sharp(path.join(photoDir, file))
-                            .resize(400, 400, { fit: 'cover' })
-                            .jpeg({ quality: 35 })
-                            .toFile(thumbPath);
-                        await new Promise(r => setTimeout(r, 50)); // Shorter delay for sharp
-                    } catch (e) {
-                        // Skip failed ones
-                    }
-                }
-            }
-            console.log(`[BACKWARD_THUMB] Background generation complete.`);
-        } catch (e) {
-            console.error(`[BACKWARD_THUMB] Error:`, e.message);
+        if (photosList.length === 0) {
+            populateLists().catch(console.error);
         }
-    })();
-    */
-});
+    });
+}
