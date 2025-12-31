@@ -59,33 +59,65 @@ import { put, del, list, head } from '@vercel/blob';
 // In-memory lists
 let photosList = [];
 let trashList = [];
-const PHOTOS_FILE = path.join(__dirname, 'photos.json');
-const TRASH_FILE = path.join(__dirname, 'trash.json');
+const PHOTOS_FILE = path.join('/tmp', 'photos.json');
+const TRASH_FILE = path.join('/tmp', 'trash.json');
+const LIST_PHOTOS_BLOB = 'lists/photos.json';
+const LIST_TRASH_BLOB = 'lists/trash.json';
 
 // Load lists
-if (fs.existsSync(PHOTOS_FILE)) {
+const loadLists = async () => {
+    // Try to load from blob first
     try {
-        photosList = JSON.parse(fs.readFileSync(PHOTOS_FILE, 'utf8'));
+        const photosBlob = await head(LIST_PHOTOS_BLOB);
+        if (photosBlob) {
+            const response = await fetch(photosBlob.url);
+            photosList = await response.json();
+        }
     } catch (e) {
-        console.error('[PHOTOS] Corrupt photos file, resetting.');
+        console.log('No photos list in blob, will populate');
     }
-}
-if (fs.existsSync(TRASH_FILE)) {
     try {
-        trashList = JSON.parse(fs.readFileSync(TRASH_FILE, 'utf8'));
+        const trashBlob = await head(LIST_TRASH_BLOB);
+        if (trashBlob) {
+            const response = await fetch(trashBlob.url);
+            trashList = await response.json();
+        }
     } catch (e) {
-        console.error('[TRASH] Corrupt trash file, resetting.');
+        console.log('No trash list in blob');
     }
-}
+    // Fallback to local files
+    if (photosList.length === 0 && fs.existsSync(PHOTOS_FILE)) {
+        try {
+            photosList = JSON.parse(fs.readFileSync(PHOTOS_FILE, 'utf8'));
+        } catch (e) {
+            console.error('[PHOTOS] Corrupt photos file, resetting.');
+        }
+    }
+    if (trashList.length === 0 && fs.existsSync(TRASH_FILE)) {
+        try {
+            trashList = JSON.parse(fs.readFileSync(TRASH_FILE, 'utf8'));
+        } catch (e) {
+            console.error('[TRASH] Corrupt trash file, resetting.');
+        }
+    }
+};
 
-const saveLists = () => {
+await loadLists();
+
+const saveLists = async () => {
     fs.writeFileSync(PHOTOS_FILE, JSON.stringify(photosList));
     fs.writeFileSync(TRASH_FILE, JSON.stringify(trashList));
+    try {
+        await put(LIST_PHOTOS_BLOB, JSON.stringify(photosList), { access: 'public' });
+        await put(LIST_TRASH_BLOB, JSON.stringify(trashList), { access: 'public' });
+    } catch (e) {
+        console.error('Failed to save lists to blob', e);
+    }
 };
 
 // Metadata cache
 let metadataCache = {};
-const cacheFile = path.join(__dirname, 'metadata_cache.json');
+const cacheFile = path.join('/tmp', 'metadata_cache.json');
 try {
     metadataCache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
 } catch (e) {
@@ -245,7 +277,7 @@ app.post('/api/upload', upload.fields([{ name: 'photos', maxCount: 100 }, { name
                 return res.status(500).json({ error: 'Upload failed' });
             }
         }
-        saveLists();
+        await saveLists();
     }
 
     console.log('[UPLOAD] Upload process completed successfully');
@@ -279,7 +311,7 @@ app.delete('/api/photos/:name', async (req, res) => {
         item.thumbUrl = trashThumbBlob.url;
         photosList = photosList.filter(p => p.name !== filename);
         trashList.push(item);
-        saveLists();
+        await saveLists();
         console.log(`[DELETE] Moved ${filename} to trash`);
         res.json({ message: 'Moved to trash' });
     } catch (error) {
@@ -311,7 +343,7 @@ app.post('/api/trash/restore/:name', async (req, res) => {
         item.thumbUrl = thumbBlob.url;
         trashList = trashList.filter(p => p.name !== filename);
         photosList.push(item);
-        saveLists();
+        await saveLists();
         console.log(`[RESTORE] Restored ${filename} from trash`);
         res.json({ message: 'Restored' });
     } catch (error) {
@@ -328,7 +360,7 @@ app.delete('/api/trash/empty', async (req, res) => {
             await del(blob.url);
         }
         trashList = [];
-        saveLists();
+        await saveLists();
         res.json({ message: 'Trash emptied' });
     } catch (error) {
         console.error('Blob delete error:', error);
