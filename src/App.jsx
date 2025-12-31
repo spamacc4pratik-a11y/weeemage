@@ -50,15 +50,7 @@ function App() {
     fetchPhotos();
   }, []);
 
-  // Polling for updates every 10 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (!processing) {
-        fetchPhotos();
-      }
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [processing]);
+
 
 
 
@@ -210,7 +202,7 @@ function App() {
   const currentPhotos = currentPage === 'home' ? photos : trashPhotos;
 
   const sortedPhotos = useMemo(() => {
-    return [...currentPhotos].sort((a, b) => b.date - a.date);
+    return [...currentPhotos].sort((a, b) => b.date - a.date || b.id.localeCompare(a.id));
   }, [currentPhotos]);
 
   const groupedPhotos = useMemo(() => {
