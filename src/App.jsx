@@ -153,7 +153,7 @@ function App() {
     setUploadingFiles([]);
     setProcessingMessage('');
     fetchPhotos();
-    setToastMessage(`Success: ${uploadedCount} items added`);
+    setToastMessage(`Processed ${totalProcessed} items, ${uploadedCount} uploaded successfully`);
 
     setProcessing(false);
     setIsProcessing(false);
