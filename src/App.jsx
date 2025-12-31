@@ -336,31 +336,33 @@ function App() {
 
         @media (max-width: 768px) {
             .main-content { padding: 0.5rem; padding-bottom: 5rem; }
-            .page-header { padding: 0.8rem 1rem; margin-bottom: 1rem; }
+            .page-header { padding: 0.8rem 1rem; margin-bottom: 1rem; flex-direction: column; align-items: stretch; gap: 1rem; }
+            .page-header > div:first-child { justify-content: center; }
+            .page-header > div:last-child { justify-content: center; }
             .nav-pill { padding: 0.5rem 0.8rem; font-size: 0.8rem; }
-            .desktop-upload { 
+            .desktop-upload {
                 position: absolute;
                 opacity: 0;
                 pointer-events: none;
                 height: 0;
             }
-            .bottom-nav { 
-                display: flex; position: fixed; bottom: 0; left: 0; right: 0; 
+            .bottom-nav {
+                display: flex; position: fixed; bottom: 0; left: 0; right: 0;
                 height: 70px; padding: 0 1rem; border-radius: 20px 20px 0 0;
                 justify-content: space-around; align-items: center; z-index: 1000;
                 background: rgba(15, 15, 15, 0.8) !important;
                 backdrop-filter: blur(10px);
             }
-            .mobile-nav-item { 
+            .mobile-nav-item {
                 display: flex; flex-direction: column; align-items: center;
                 background: none; border: none; color: var(--text-secondary);
                 font-size: 1.2rem; gap: 4px;
             }
             .mobile-nav-item span { font-size: 0.7rem; }
             .mobile-nav-item.active { color: var(--accent-primary); }
-            
+
             .mobile-fab-container { position: relative; width: 60px; height: 60px; margin-top: -30px; }
-            .fab { 
+            .fab {
                 width: 60px; height: 60px; border-radius: 50%; border: none;
                 background: var(--accent-primary); color: white; font-size: 2rem;
                 box-shadow: 0 8px 20px rgba(255, 64, 64, 0.5); cursor: pointer;

@@ -41,6 +41,14 @@ export const Timeline = ({ groups, onDelete, onPhotoClick, isTrashView }) => {
                             gap: '1rem',
                         }}
                     >
+                        <style>{`
+                            @media (max-width: 768px) {
+                                div > div > div {
+                                    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+                                    gap: 0.5rem !important;
+                                }
+                            }
+                        `}</style>
                         {group.photos.map(photo => (
                             <PhotoCard
                                 key={photo.id}
