@@ -6,7 +6,7 @@ import { ImageViewer } from './components/ImageViewer';
 import { Toast } from './components/Toast';
 import { UploadStatus } from './components/UploadStatus';
 
-const API_URL = '';
+const API_URL = window.location.origin;
 
 function App() {
   const [photos, setPhotos] = useState([]);
