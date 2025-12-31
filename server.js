@@ -55,32 +55,35 @@ const upload = multer({
 import ExifReader from 'exifreader';
 import sharp from 'sharp';
 import { put, del, list, head } from '@vercel/blob';
-import { kv } from '@vercel/kv';
 
 // In-memory lists
 let photosList = [];
 let trashList = [];
 const PHOTOS_FILE = path.join('/tmp', 'photos.json');
 const TRASH_FILE = path.join('/tmp', 'trash.json');
+const LIST_PHOTOS_BLOB = 'lists/photos.json';
+const LIST_TRASH_BLOB = 'lists/trash.json';
 
 // Load lists
 const loadLists = async () => {
-    // Try to load from KV first
+    // Try to load from blob first
     try {
-        const photosData = await kv.get('photos');
-        if (photosData) {
-            photosList = JSON.parse(photosData);
+        const photosBlob = await head(LIST_PHOTOS_BLOB);
+        if (photosBlob) {
+            const response = await fetch(photosBlob.url);
+            photosList = await response.json();
         }
     } catch (e) {
-        console.log('No photos list in KV');
+        console.log('No photos list in blob, will populate');
     }
     try {
-        const trashData = await kv.get('trash');
-        if (trashData) {
-            trashList = JSON.parse(trashData);
+        const trashBlob = await head(LIST_TRASH_BLOB);
+        if (trashBlob) {
+            const response = await fetch(trashBlob.url);
+            trashList = await response.json();
         }
     } catch (e) {
-        console.log('No trash list in KV');
+        console.log('No trash list in blob');
     }
     // Fallback to local files
     if (photosList.length === 0 && fs.existsSync(PHOTOS_FILE)) {
@@ -105,10 +108,10 @@ const saveLists = async () => {
     fs.writeFileSync(PHOTOS_FILE, JSON.stringify(photosList));
     fs.writeFileSync(TRASH_FILE, JSON.stringify(trashList));
     try {
-        await kv.set('photos', JSON.stringify(photosList));
-        await kv.set('trash', JSON.stringify(trashList));
+        await put(LIST_PHOTOS_BLOB, JSON.stringify(photosList), { access: 'public' });
+        await put(LIST_TRASH_BLOB, JSON.stringify(trashList), { access: 'public' });
     } catch (e) {
-        console.error('Failed to save lists to KV', e);
+        console.error('Failed to save lists to blob', e);
     }
 };
 
