@@ -50,6 +50,14 @@ function App() {
     fetchPhotos();
   }, []);
 
+  // Polling for realtime updates
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchPhotos();
+    }, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
+
   // Infinite scroll logic with throttling
   useEffect(() => {
     let ticking = false;
