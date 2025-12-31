@@ -396,14 +396,3 @@ app.get('/api/thumbnail/:type/:name', (req, res) => {
 
 // For Vercel serverless, export the app instead of listening
 export default app;
-
-// For local development, listen if not in Vercel
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(PORT, () => {
-        console.log(`Server running on http://localhost:${PORT}`);
-
-        if (photosList.length === 0) {
-            populateLists().catch(console.error);
-        }
-    });
-}

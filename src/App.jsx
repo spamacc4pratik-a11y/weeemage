@@ -6,7 +6,7 @@ import { ImageViewer } from './components/ImageViewer';
 import { Toast } from './components/Toast';
 import { UploadStatus } from './components/UploadStatus';
 
-const API_URL = window.location.hostname === 'localhost' ? `http://${window.location.hostname}:3001` : '';
+const API_URL = '';
 
 function App() {
   const [photos, setPhotos] = useState([]);
