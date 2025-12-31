@@ -1,7 +1,4 @@
-import { useRef } from 'react';
-
 export const UploadZone = ({ onFileProcess }) => {
-  const fileInputRef = useRef();
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -42,9 +39,7 @@ export const UploadZone = ({ onFileProcess }) => {
     processFiles(e.dataTransfer.files);
   };
 
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
+
 
   return (
     <div
@@ -62,21 +57,7 @@ export const UploadZone = ({ onFileProcess }) => {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={handleClick}
     >
-      <input
-        type="file"
-        id="file-input"
-        ref={fileInputRef}
-        multiple
-        accept="image/*,video/*,.heic"
-        style={{ display: 'none' }}
-        onClick={(e) => e.stopPropagation()} // Crucial: prevent click from bubbling back to parent div
-        onChange={(e) => {
-          processFiles(e.target.files);
-          e.target.value = ''; // Allow re-selecting same files
-        }}
-      />
       <div style={{ pointerEvents: 'none' }}>
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

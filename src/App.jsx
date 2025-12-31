@@ -220,6 +220,18 @@ function App() {
 
   return (
     <div className="app-layout">
+      <input
+        type="file"
+        id="file-input"
+        multiple
+        accept="image/*,video/*,.heic"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          handleFiles(e.target.files);
+          e.target.value = '';
+        }}
+      />
+
       {/* Main Content Area */}
       <main className="main-content">
         <header className="page-header glass-panel">
