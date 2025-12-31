@@ -234,7 +234,10 @@ app.post('/api/upload', upload.fields([{ name: 'photos', maxCount: 100 }, { name
                     const priorityTags = ['DateTimeOriginal', 'CreationDate', 'CreateDate', 'MediaCreateDate', 'ModifyDate', 'DateTime'];
                     for (const tag of priorityTags) {
                         if (tags[tag]?.description) {
-                            const parsed = new Date(tags[tag].description.replace(/:(\d{2}):(\d{2}) /, '-$1-$2 ').replace(/:/g, '-').replace(' ', 'T').split(/[\+\-Z]/)[0]);
+                            // EXIF date format: "2023:12:31 12:34:56"
+                            const exifDate = tags[tag].description;
+                            const dateStr = exifDate.replace(/^(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, '$1-$2-$3T$4:$5:$6');
+                            const parsed = new Date(dateStr);
                             if (!isNaN(parsed)) {
                                 date = parsed.getTime();
                                 break;
