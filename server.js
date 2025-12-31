@@ -25,7 +25,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.static('public', {
@@ -357,6 +357,14 @@ app.get('/api/thumbnail/:name', (req, res) => {
 // Backward compatibility for the legacy /api/thumbnail/trash/ or /api/thumbnail/photos/ URLs
 app.get('/api/thumbnail/:type/:name', (req, res) => {
     res.redirect(`/api/thumbnail/${req.params.name}`);
+});
+
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// Catch-all handler: send back index.html for any non-API routes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 // For Vercel serverless, export the app instead of listening

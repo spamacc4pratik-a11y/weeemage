@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "server": "node --max-old-space-size=1024 server.js",
     "dev-server": "nodemon --max-old-space-size=1024 server.js",
-    "start": "concurrently \"npm run dev\" \"npm run dev-server\""
+    "start": "npm run server"
   },
   "dependencies": {
     "@vercel/blob": "^0.23.4",
