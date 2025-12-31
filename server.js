@@ -186,13 +186,19 @@ async function populateLists() {
     console.log(`Memory usage: ${JSON.stringify(process.memoryUsage())}`);
 }
 
-app.get('/api/photos', (req, res) => {
+app.get('/api/photos', async (req, res) => {
+    if (photosList.length === 0) {
+        await populateLists();
+    }
     console.log(`[API] Served ${photosList.length} photos`);
     res.json(photosList);
 });
 
 // API to get list of trashed photos
-app.get('/api/trash', (req, res) => {
+app.get('/api/trash', async (req, res) => {
+    if (trashList.length === 0 && photosList.length === 0) {
+        await populateLists();
+    }
     res.json(trashList);
 });
 
