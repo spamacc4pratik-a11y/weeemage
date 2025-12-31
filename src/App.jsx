@@ -50,6 +50,16 @@ function App() {
     fetchPhotos();
   }, []);
 
+  // Polling for updates every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!processing) {
+        fetchPhotos();
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [processing]);
+
 
 
   // Infinite scroll logic with throttling
