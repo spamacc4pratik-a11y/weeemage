@@ -20,6 +20,8 @@ function App() {
 
   const [displayCount, setDisplayCount] = useState(24);
 
+  const [isOperating, setIsOperating] = useState(false);
+
   const fetchPhotos = () => {
     fetch(`${API_URL}/api/photos`)
       .then(res => res.json())
@@ -53,10 +55,12 @@ function App() {
   // Polling for realtime updates
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchPhotos();
-    }, 5000); // Poll every 5 seconds
+      if (!isOperating) {
+        fetchPhotos();
+      }
+    }, 1000); // Poll every 1 second
     return () => clearInterval(interval);
-  }, []);
+  }, [isOperating]);
 
   // Infinite scroll logic with throttling
   useEffect(() => {
@@ -168,6 +172,7 @@ function App() {
   const [toastMessage, setToastMessage] = useState(null);
 
   const deletePhoto = async (id) => {
+    setIsOperating(true);
     try {
       const response = await fetch(`${API_URL}/api/photos/${encodeURIComponent(id)}`, { method: 'DELETE' });
       if (response.ok) {
@@ -176,10 +181,13 @@ function App() {
       }
     } catch (e) {
       setToastMessage("Error moving to trash");
+    } finally {
+      setIsOperating(false);
     }
   };
 
   const restorePhoto = async (id) => {
+    setIsOperating(true);
     try {
       const response = await fetch(`${API_URL}/api/trash/restore/${encodeURIComponent(id)}`, { method: 'POST' });
       if (response.ok) {
@@ -188,10 +196,13 @@ function App() {
       }
     } catch (e) {
       setToastMessage("Error restoring photo");
+    } finally {
+      setIsOperating(false);
     }
   };
 
   const emptyTrash = async () => {
+    setIsOperating(true);
     try {
       const response = await fetch(`${API_URL}/api/trash/empty`, { method: 'DELETE' });
       if (response.ok) {
@@ -200,6 +211,8 @@ function App() {
       }
     } catch (e) {
       setToastMessage("Error emptying trash");
+    } finally {
+      setIsOperating(false);
     }
   };
 
